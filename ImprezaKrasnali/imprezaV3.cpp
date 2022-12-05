@@ -21,14 +21,11 @@ void drukujPermutacje(string permutacja)
         cout << permutacja[i] - '0' + 1;
     cout << endl;
 }
-int *mozliweWystapienia;
-bool *czyPewneNaPozycji;
-bool *CzyPewnaLiczba;
 void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
 {
-    mozliweWystapienia = new int[n]{};
-    czyPewneNaPozycji = new bool[n]{false};
-    CzyPewnaLiczba = new bool[n]{false};
+    int *mozliweWystapienia = new int[n]{};
+    bool *czyPewneNaPozycji = new bool[n]{false};
+    bool *CzyPewnaLiczba = new bool[n]{false};
     vector<int> temp;
     for (int i = 0; i < n; i++)
         mozliweOdpowiedzi.push_back(temp);
@@ -83,39 +80,14 @@ void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
             }
         }
     }
-    bool czyWszystkieWystapily = true;
     for (int i = 0; i < n; i++)
     {
         if (mozliweWystapienia[i] == 0)
         {
-            czyWszystkieWystapily = false;
             for (int j = 0; j < n; j++)
             {
                 if (!czyPewneNaPozycji[j])
                     mozliweOdpowiedzi[j].push_back(i);
-            }
-        }
-    }
-    if (czyWszystkieWystapily)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            if (mozliweOdpowiedzi[i].size() == 1)
-            {
-                mozliweWystapienia[mozliweOdpowiedzi[i][0]] = 1;
-                for (int k = 0; k < n; k++)
-                    if (mozliweOdpowiedzi[k].size() > 1)
-                        for (int j = 0; j < n; j++)
-                        {
-                            if (mozliweOdpowiedzi[k][j] == mozliweOdpowiedzi[i][0])
-                            {
-                                vector<int> temp;
-                                temp = mozliweOdpowiedzi[k];
-                                temp.erase(temp.begin()+j);
-                                mozliweOdpowiedzi[k] = temp;
-                                break;
-                            }
-                        }
             }
         }
     }
@@ -124,10 +96,10 @@ void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
     // cout << i + 1 << "\t";
     // cout << endl;
     // for (int i = 0; i < n; i++)
-    // cout << mozliweWystapienia[i] << " ";
+    //     cout << mozliweWystapienia[i] << " ";
 
     // cout << mozliweWystapienia[i] << "\t";
-    cout << endl;
+    // cout << endl;
     // cout << endl;
 
     for (int i = 0; i < n; i++)
@@ -157,54 +129,35 @@ bool sprawdzarka()
             return false;
     return true;
 }
-
 int main()
 {
-    int *skojarzenia;
-    while (!cin.eof())
+    cin >> n;
+    int *skojarzenia = new int[n];
+    sprawdzana = new int[n];
+
+    int skojarzenie;
+    for (int i = 0; i < n; i++)
     {
-        cin >> n;
-        skojarzenia = new int[n];
-        sprawdzana = new int[n];
-
-        int skojarzenie;
-        for (int i = 0; i < n; i++)
-        {
-            cin >> skojarzenie;
-            skojarzenie--;
-            skojarzenia[i] = skojarzenie;
-        }
-        if (n > 8)
-        {
-            // cout << "za duze" << endl;
-            continue;
-        }
-        for (int i = 0; i < n; i++)
-            cout << skojarzenia[i] + 1 << " ";
-        cout << endl;
-        przygotowujeTabliceDoSprawdzarki(skojarzenia);
-
-        string doPermutacji;
-        for (int i = 0; i < n; i++)
-            doPermutacji += to_string(i);
-        int licznik = 0;
-        do
-        {
-            przygotowujeTabliceDoSprawdzenia(doPermutacji);
-
-            if (sprawdzarka())
-            {
-                // drukujPermutacje(doPermutacji);
-                licznik++;
-            }
-        } while (next_permutation(doPermutacji.begin(), doPermutacji.end()));
-        cout << licznik << endl;
-        cout << endl;
-
-        mozliweOdpowiedzi.clear();
-        delete[] skojarzenia;
-        delete[] sprawdzana;
-        delete[] czyPewneNaPozycji;
-        delete[] CzyPewnaLiczba;
+        cin >> skojarzenie;
+        skojarzenie--;
+        skojarzenia[i] = skojarzenie;
     }
+
+    przygotowujeTabliceDoSprawdzarki(skojarzenia);
+
+    string doPermutacji;
+    for (int i = 0; i < n; i++)
+        doPermutacji += to_string(i);
+    int licznik = 0;
+    do
+    {
+        przygotowujeTabliceDoSprawdzenia(doPermutacji);
+
+        if (sprawdzarka())
+        {
+            // drukujPermutacje(doPermutacji);
+            licznik++;
+        }
+    } while (next_permutation(doPermutacji.begin(), doPermutacji.end()));
+    cout << licznik << endl;
 }

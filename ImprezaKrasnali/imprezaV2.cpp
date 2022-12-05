@@ -70,21 +70,16 @@ void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
         if (!czyPewne[i])
             if (czapkaNaLewo != czapkaNaPrawo)
             {
-                bool CzyJednoZajete = 0;
                 if (mozliweWystapienia[czapkaNaLewo] == 0 || mozliweWystapienia[czapkaNaLewo] == 2)
                 {
                     mozliweOdpowiedzi[i].push_back(czapkaNaLewo);
                     mozliweWystapienia[czapkaNaLewo] = 2;
-                    CzyJednoZajete++;
                 }
                 if (mozliweWystapienia[czapkaNaPrawo] == 0 || mozliweWystapienia[czapkaNaPrawo] == 2)
                 {
                     mozliweOdpowiedzi[i].push_back(czapkaNaPrawo);
                     mozliweWystapienia[czapkaNaPrawo] = 2;
-                    CzyJednoZajete++;
                 }
-                if (CzyJednoZajete == 1)
-                    czyPewne[i] == true;
             }
     }
     for (int i = 0; i < n; i++)

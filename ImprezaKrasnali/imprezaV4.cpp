@@ -3,10 +3,12 @@
 #include <cstdlib>
 #include <algorithm>
 #include <vector>
+#include <math.h>
 
 using namespace std;
 int n;
 int *sprawdzana;
+int *mozliweWystapienia;
 vector<vector<int>> mozliweOdpowiedzi;
 
 void przygotowujeTabliceDoSprawdzenia(string permutacja)
@@ -21,17 +23,30 @@ void drukujPermutacje(string permutacja)
         cout << permutacja[i] - '0' + 1;
     cout << endl;
 }
-int *mozliweWystapienia;
-bool *czyPewneNaPozycji;
-bool *CzyPewnaLiczba;
+bool czyMoznaStoworzyc = true;
 void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
 {
     mozliweWystapienia = new int[n]{};
-    czyPewneNaPozycji = new bool[n]{false};
-    CzyPewnaLiczba = new bool[n]{false};
+    bool *czyPewneNaPozycji = new bool[n]{false};
+    bool *CzyPewnaLiczba = new bool[n]{false};
     vector<int> temp;
     for (int i = 0; i < n; i++)
         mozliweOdpowiedzi.push_back(temp);
+
+    bool *CzyKazdaWystepuje = new bool[n]{false};
+    for (int i = 0; i < n; i++)
+    {
+        CzyKazdaWystepuje[skojarzenia[i]] = true;
+    }
+    bool czyWszystkieWystepuja = true;
+    for (int i = 0; i < n; i++)
+    {
+        if (!CzyKazdaWystepuje[i])
+        {
+            czyWszystkieWystepuja = false;
+            break;
+        }
+    }
 
     // zasada 1 - skrajne krasnale musza mowic o 'przedskrajnych'
     mozliweOdpowiedzi[1].push_back(skojarzenia[0]);
@@ -63,16 +78,26 @@ void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
         if (!CzyPewnaLiczba[skojarzenia[i]])
         {
             bool czyDoLewej = true;
+            bool czyWstawilismy = false;
             if (!czyPewneNaPozycji[i - 1])
             {
                 mozliweOdpowiedzi[i - 1].push_back(skojarzenia[i]);
                 mozliweWystapienia[skojarzenia[i]]++;
+                czyWstawilismy = true;
+                if (czyWszystkieWystepuja && mozliweOdpowiedzi[i - 1].size() == 1)
+                    continue;
             }
             if (!czyPewneNaPozycji[i + 1])
             {
                 mozliweOdpowiedzi[i + 1].push_back(skojarzenia[i]);
                 mozliweWystapienia[skojarzenia[i]]++;
                 czyDoLewej = false;
+                czyWstawilismy = true;
+            }
+            if (!czyWstawilismy)
+            {
+                czyMoznaStoworzyc = false;
+                return;
             }
             if (mozliweWystapienia[skojarzenia[i]] == 1)
             {
@@ -83,12 +108,10 @@ void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
             }
         }
     }
-    bool czyWszystkieWystapily = true;
     for (int i = 0; i < n; i++)
     {
         if (mozliweWystapienia[i] == 0)
         {
-            czyWszystkieWystapily = false;
             for (int j = 0; j < n; j++)
             {
                 if (!czyPewneNaPozycji[j])
@@ -96,39 +119,16 @@ void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
             }
         }
     }
-    if (czyWszystkieWystapily)
-    {
-        for (int i = 0; i < n; i++)
-        {
-            if (mozliweOdpowiedzi[i].size() == 1)
-            {
-                mozliweWystapienia[mozliweOdpowiedzi[i][0]] = 1;
-                for (int k = 0; k < n; k++)
-                    if (mozliweOdpowiedzi[k].size() > 1)
-                        for (int j = 0; j < n; j++)
-                        {
-                            if (mozliweOdpowiedzi[k][j] == mozliweOdpowiedzi[i][0])
-                            {
-                                vector<int> temp;
-                                temp = mozliweOdpowiedzi[k];
-                                temp.erase(temp.begin()+j);
-                                mozliweOdpowiedzi[k] = temp;
-                                break;
-                            }
-                        }
-            }
-        }
-    }
-
-    // for (int i = 0; i < n; i++)
-    // cout << i + 1 << "\t";
-    // cout << endl;
-    // for (int i = 0; i < n; i++)
-    // cout << mozliweWystapienia[i] << " ";
-
-    // cout << mozliweWystapienia[i] << "\t";
+    
+    for (int i = 0; i < n; i++)
+        cout << i + 1 << "\t";
     cout << endl;
-    // cout << endl;
+    for (int i = 0; i < n; i++)
+        // cout << mozliweWystapienia[i] << " ";
+
+        cout << mozliweWystapienia[i] << "\t";
+    cout << endl;
+    cout << endl;
 
     for (int i = 0; i < n; i++)
     {
@@ -139,6 +139,25 @@ void przygotowujeTabliceDoSprawdzarki(int *skojarzenia)
         cout << "\t";
     }
     cout << endl;
+}
+long long obliczaIloscMozliwosci()
+{
+    int ilosc0 = 0;
+    int ilosc0i2 = 0;
+    for (int i = 0; i < n; i++)
+    {
+        if (mozliweWystapienia[i] == 0)
+        {
+            ilosc0++;
+        }
+        else if (mozliweWystapienia[i] == 2)
+            ilosc0i2++;
+    }
+    ilosc0i2 += ilosc0;
+    long long wynik;
+    wynik = pow(2, ilosc0 - 1) * (ilosc0i2); //wzor nie dziala na razie
+    return wynik;
+    // cout << wynik << endl;
 }
 bool znajdzW2DTablicy(int pozycja, int szukane)
 {
@@ -157,54 +176,56 @@ bool sprawdzarka()
             return false;
     return true;
 }
-
 int main()
 {
-    int *skojarzenia;
-    while (!cin.eof())
+    cin >> n;
+    int *skojarzenia = new int[n];
+    sprawdzana = new int[n];
+
+    // if (n > 9)
+    // {
+    //     cout << "-";
+    //     return 0;
+    // }
+    int skojarzenie;
+    for (int i = 0; i < n; i++)
     {
-        cin >> n;
-        skojarzenia = new int[n];
-        sprawdzana = new int[n];
-
-        int skojarzenie;
-        for (int i = 0; i < n; i++)
-        {
-            cin >> skojarzenie;
-            skojarzenie--;
-            skojarzenia[i] = skojarzenie;
-        }
-        if (n > 8)
-        {
-            // cout << "za duze" << endl;
-            continue;
-        }
-        for (int i = 0; i < n; i++)
-            cout << skojarzenia[i] + 1 << " ";
-        cout << endl;
-        przygotowujeTabliceDoSprawdzarki(skojarzenia);
-
-        string doPermutacji;
-        for (int i = 0; i < n; i++)
-            doPermutacji += to_string(i);
-        int licznik = 0;
-        do
-        {
-            przygotowujeTabliceDoSprawdzenia(doPermutacji);
-
-            if (sprawdzarka())
-            {
-                // drukujPermutacje(doPermutacji);
-                licznik++;
-            }
-        } while (next_permutation(doPermutacji.begin(), doPermutacji.end()));
-        cout << licznik << endl;
-        cout << endl;
-
-        mozliweOdpowiedzi.clear();
-        delete[] skojarzenia;
-        delete[] sprawdzana;
-        delete[] czyPewneNaPozycji;
-        delete[] CzyPewnaLiczba;
+        cin >> skojarzenie;
+        skojarzenie--;
+        skojarzenia[i] = skojarzenie;
     }
+
+    przygotowujeTabliceDoSprawdzarki(skojarzenia);
+    if (!czyMoznaStoworzyc)
+    {
+        cout << 0 << endl;
+        return 0;
+    }
+
+    string doPermutacji;
+    for (int i = 0; i < n; i++)
+        doPermutacji += to_string(i);
+    int licznik = 0;
+    do
+    {
+        przygotowujeTabliceDoSprawdzenia(doPermutacji);
+
+        // if (doPermutacji == "3451206")
+        //     cout << endl;
+        if (sprawdzarka())
+        {
+            // drukujPermutacje(doPermutacji);
+            licznik++;
+        }
+    } while (next_permutation(doPermutacji.begin(), doPermutacji.end()));
+    cout << licznik << endl;
+    long long wynik2 = obliczaIloscMozliwosci();
+    // if (licznik != wynik2)
+    // cout << licznik  << " " << wynik2 << endl;
+    // else
+    // cout << licznik;
+
+    // cout << wynik2 << endl;
+
+    return 0;
 }

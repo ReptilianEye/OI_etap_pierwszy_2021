@@ -7,6 +7,8 @@
 
 using namespace std;
 
+const int MAXINT = 2147483647;
+
 struct Job
 {
     int deadline, duration, idx;
@@ -18,16 +20,16 @@ struct Job
 };
 int n;
 
-vector<int> compute_schedule(vector<Job> jobs)
+vector<pair<int, int>> compute_schedule(vector<Job> jobs)
 {
     sort(jobs.begin(), jobs.end());
 
-    set<pair<int, int>> s;
-    vector<int> schedule;
+    set<pair<int, pair<int, int>>> s;
+    vector<pair<int, int>> schedule;
     for (int i = jobs.size() - 1; i >= 0; i--)
     {
         int t = jobs[i].deadline - (i ? jobs[i - 1].deadline : 0);
-        s.insert(make_pair(jobs[i].duration, jobs[i].idx));
+        s.insert(make_pair(jobs[i].duration, make_pair(jobs[i].idx,jobs[i].deadline)));
         while (t && !s.empty())
         {
             auto it = s.begin();
@@ -65,9 +67,19 @@ int main()
     }
     auto wyniki = compute_schedule(filmyDoZmontowania);
     cout << wyniki.size() << endl;
-    // for (auto film : wyniki)
-    // {
-    //     cout << film << endl;
-    // }
-    return 0;
+    sort(wyniki.begin(), wyniki.end());
+    int najwczesniejszyTermin = MAXINT;
+    vector<pair<int, int>> wynikiSchedule;
+    for (int i = wyniki.size() - 1; i >= 0; i--)
+    {
+        Job aktualnyFilm = filmyDoZmontowania[wyniki[i].first - 1];
+        int kiedyTrzebaZaczac = min(aktualnyFilm.deadline - aktualnyFilm.duration+1, najwczesniejszyTermin);
+        wynikiSchedule.push_back(make_pair(aktualnyFilm.idx, kiedyTrzebaZaczac));
+        najwczesniejszyTermin = kiedyTrzebaZaczac - 1;
+    }
+    for (int i = wynikiSchedule.size()-1; i >= 0 ;i--)
+    {
+        cout << wynikiSchedule[i].first << " " << wynikiSchedule[i].second << endl;
+    }
+        return 0;
 }
